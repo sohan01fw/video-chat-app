@@ -37,6 +37,17 @@ io.on("connection", (socket) => {
     const { to, ans } = data;
     io.to(to).emit("call:accepted", { id: socket.id, ans });
   });
+
+  //for negotiation
+  socket.on("nego:needed", (data) => {
+    const { to, offer } = data;
+    io.to(to).emit("nego:needed", { from: socket.id, offer });
+  });
+
+  socket.on("nego:done", (data) => {
+    const { to, ans } = data;
+    io.to(to).emit("nego:done", { from: socket.id, ans });
+  });
 });
 
 app.listen(PORT, () => {
