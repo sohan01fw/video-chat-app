@@ -136,7 +136,9 @@ export const Room = () => {
         />
       )}
       <h4>{remoteSocketId ? "connected" : "No one is in room"}</h4>
-      {remoteSocketId && <button onClick={handleStream}>stream video</button>}
+      {myStream && remoteSocketId && (
+        <button onClick={handleStream}>stream video</button>
+      )}
       {remoteSocketId && <button onClick={handleCall}>call</button>}
     </div>
   );

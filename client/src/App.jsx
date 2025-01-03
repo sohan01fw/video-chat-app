@@ -1,14 +1,17 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import { IndexPage } from "./pages";
-import { Room } from "./pages/room";
+import { WaitingRoom } from "./pages/waitingroom";
+import { ProtectedRoute } from "./lib/ProtectedRoute";
 
 function App() {
   return (
     <>
       <Routes>
         <Route path="/" element={<IndexPage />} />
-        <Route path="/:id" element={<Room />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/:id" element={<WaitingRoom />} />
+        </Route>
       </Routes>
     </>
   );
