@@ -1,13 +1,12 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import cookie from "js-cookie";
 import { useEffect } from "react";
+import { cooki } from "./process";
 
 export function ProtectedRoute() {
   const navigate = useNavigate();
 
   const check = () => {
-    const cookies = cookie.get("email");
-    if (!cookies) {
+    if (!cooki) {
       navigate("/");
     }
   };

@@ -10,7 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<IndexPage />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/:id" element={<WaitingRoom />} />
+          <Route path="/video-chat" element={<WaitingRoom />} />
         </Route>
       </Routes>
     </>

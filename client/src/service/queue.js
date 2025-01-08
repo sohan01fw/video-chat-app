@@ -1,7 +1,5 @@
-class Queue {
+class roomQueue {
   constructor() {
-    const data = localStorage.getItem("queue-data") || [];
-    this.queue = data;
     // console.log(this.queue);
   }
 
@@ -14,4 +12,4 @@ class Queue {
   }
 }
 
-export default new Queue();
+export default new roomQueue();

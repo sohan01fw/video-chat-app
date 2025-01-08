@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSocket } from "../context/SocketProvider";
 import { useNavigate } from "react-router-dom";
 import cookie from "js-cookie";
+import { cooki } from "../lib/process";
 
 export function IndexPage() {
   const [email, setEmail] = useState("");
@@ -12,10 +13,11 @@ export function IndexPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const cookies = cookie.get("email");
-    if (cookies) {
+    if (cooki) {
       const data = {
-        email: cookies,
+        email: cooki.email,
+        name: cooki.name,
+        gender: cookie.gender,
       };
       socket.emit("join-queue", data);
     }
@@ -23,7 +25,7 @@ export function IndexPage() {
   const handleJoinQueue = useCallback(
     (data) => {
       const { id } = data;
-      navigate(id);
+      navigate(`/video-chat`);
     },
     [navigate],
   );
@@ -56,7 +58,15 @@ export function IndexPage() {
           gender,
         };
         //set cookies for mimic auth
-        cookie.set("email", email);
+        cookie.set(
+          "userData",
+          JSON.stringify({ email: email, name: name, gender: gender }),
+          {
+            SameSite: "None",
+            Secure: true,
+            path: "/",
+          },
+        );
         socket.emit("join-queue", data);
       } else {
         alert("Not allowed,Must be 18+ to enter!");

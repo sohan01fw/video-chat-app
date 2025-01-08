@@ -1,6 +1,13 @@
 import express from "express";
 import { Server } from "socket.io";
-import { addToQueue, removeFromQueue } from "./lib/redis/redis_op.js";
+import {
+  addToQueue,
+  addToRoomQueue,
+  delRooms,
+  getAllRooms,
+  removeFromQueue,
+} from "./lib/redis/redis_op.js";
+import short from "short-uuid";
 
 const app = express();
 
@@ -11,9 +18,12 @@ app.get("/", (req, res) => {
   res.send("Hello from world!");
 });
 //mapping email to socket id;
-const nameToSocketIdMap = new Map();
+const emailToSocketIdMap = new Map();
 //mapping socketId to email;
 const socketIdToEmailMap = new Map();
+//mapping socketId to name;
+const socketIdToNameMap = new Map();
+
 //intialize socket server
 const io = new Server(SOCKETPORT, {
   cors: true,
@@ -25,10 +35,12 @@ io.on("connection", (socket) => {
   socket.on("join-queue", async (data) => {
     const { email, name, gender } = data;
     //run map to set the value in future usecases.
-    nameToSocketIdMap.set(name, socket.id);
-    socketIdToEmailMap.set(socket.id, name);
+    emailToSocketIdMap.set(email, socket.id);
+    socketIdToEmailMap.set(socket.id, email);
+    socketIdToNameMap.set(socket.id, name);
     // get user data and add to the redis queue.
-    const { success, status, msg } = await addToQueue(email, name);
+    const queue_name = "users_queue";
+    const { success, status, msg } = await addToQueue(queue_name, email, name);
     if (!success) {
       io.to(socket.id).emit("join-fail", msg);
     }
@@ -37,7 +49,54 @@ io.on("connection", (socket) => {
     //joined users to the room(max 2 only)
     // socket.join(roomId);
     // io.to(roomId).emit("user:joined", { email, id: socket.id });
-    // io.to(socket.id).emit("join-room", data);
+  });
+  socket.on("start:session", async () => {
+    const email = socketIdToEmailMap.get(socket.id);
+    //remove user from the queue
+    await removeFromQueue(email);
+    //check any of the room is fill up or not
+    const roomId = await getAllRooms();
+    //join the room
+    socket.join(roomId);
+    io.to(roomId).emit("joined:room", {
+      email: email,
+      msg: "hi you are connected to the room",
+      id: roomId,
+    });
+    //check socket inside room
+    const room = io.sockets.adapter.rooms.get(roomId);
+    if (room.size === 2) {
+      await delRooms(roomId);
+      console.log("rooms deleted", roomId);
+    }
+
+    //if no any room is available then create new one and join on it
+    if (roomId === null) {
+      const email = socketIdToEmailMap.get(socket.id);
+      //remove user from the queue
+      await removeFromQueue(email);
+      const roomId = short.generate();
+      const queue_name = "rooms";
+      const name = socketIdToNameMap.get(socket.id);
+      const { success, status, msg } = await addToRoomQueue(
+        queue_name,
+        roomId,
+        email,
+        name,
+      );
+      console.log({ msg, status });
+      if (status === 200) {
+        //check any of the room is fill up or not
+        const roomId = await getAllRooms();
+        //join the room
+        socket.join(roomId);
+        io.to(roomId).emit("joined:room", {
+          email: email,
+          msg: "hi you are connected to the room",
+          id: roomId,
+        });
+      }
+    }
   });
 
   // socket.on("call:user", (data) => {
@@ -60,11 +119,13 @@ io.on("connection", (socket) => {
   //   const { to, ans } = data;
   //   io.to(to).emit("nego:done", { from: socket.id, ans });
   // });
+  socket.on("end:session", () => {
+    console.log("session end");
+    console.log("id", socket.id);
+  });
   socket.on("disconnecting", async () => {
-    const cookies = socket.request.headers.cookie; // Raw cookie header
-    console.log("Cookies:", cookies);
     console.log("disconnect");
-    await removeFromQueue(socket.id);
+    // await removeFromQueue(socket.id);
   });
 });
 
