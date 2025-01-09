@@ -58,16 +58,17 @@ io.on("connection", (socket) => {
     const roomId = await getAllRooms();
     //join the room
     socket.join(roomId);
-    io.to(roomId).emit("joined:room", {
-      email: email,
-      msg: "hi you are connected to the room",
-      id: roomId,
-    });
+
     //check socket inside room
     const room = io.sockets.adapter.rooms.get(roomId);
     if (room.size === 2) {
-      await delRooms(roomId);
-      console.log("rooms deleted", roomId);
+      io.to(roomId).emit("joined:room", {
+        email: email,
+        msg: "hi you are connected to the room",
+        socketId: socket.id,
+      });
+      const { msg, status } = await delRooms(roomId);
+      // console.log(msg);
     }
 
     //if no any room is available then create new one and join on it
@@ -78,53 +79,44 @@ io.on("connection", (socket) => {
       const roomId = short.generate();
       const queue_name = "rooms";
       const name = socketIdToNameMap.get(socket.id);
+      //add user to the room queue
       const { success, status, msg } = await addToRoomQueue(
         queue_name,
         roomId,
         email,
         name,
       );
-      console.log({ msg, status });
       if (status === 200) {
         //check any of the room is fill up or not
         const roomId = await getAllRooms();
         //join the room
         socket.join(roomId);
-        io.to(roomId).emit("joined:room", {
-          email: email,
-          msg: "hi you are connected to the room",
-          id: roomId,
-        });
       }
     }
   });
 
-  // socket.on("call:user", (data) => {
-  //   const { to, offer } = data;
-  //   io.to(to).emit("call:incoming", { id: socket.id, offer });
-  // });
-
-  // socket.on("call:accepted", (data) => {
-  //   const { to, ans } = data;
-  //   io.to(to).emit("call:accepted", { id: socket.id, ans });
-  // });
-
-  // //for negotiation
-  // socket.on("nego:needed", (data) => {
-  //   const { to, offer } = data;
-  //   io.to(to).emit("nego:needed", { from: socket.id, offer });
-  // });
-
-  // socket.on("nego:done", (data) => {
-  //   const { to, ans } = data;
-  //   io.to(to).emit("nego:done", { from: socket.id, ans });
-  // });
-  socket.on("end:session", () => {
-    console.log("session end");
-    console.log("id", socket.id);
+  socket.on("call:user", (data) => {
+    const { to, offer } = data;
+    io.to(to).emit("call:incoming", { id: socket.id, offer });
   });
+
+  socket.on("call:accepted", (data) => {
+    const { to, ans } = data;
+    io.to(to).emit("call:accepted", { id: socket.id, ans });
+  });
+
+  //for negotiation
+  socket.on("nego:needed", (data) => {
+    const { to, offer } = data;
+    io.to(to).emit("nego:needed", { from: socket.id, offer });
+  });
+
+  socket.on("nego:done", (data) => {
+    const { to, ans } = data;
+    io.to(to).emit("nego:done", { from: socket.id, ans });
+  });
+  socket.on("end:session", () => {});
   socket.on("disconnecting", async () => {
-    console.log("disconnect");
     // await removeFromQueue(socket.id);
   });
 });

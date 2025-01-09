@@ -65,12 +65,14 @@ export async function getAllRooms() {
   }
 }
 //delete rooms
+
 export async function delRooms(roomId) {
   try {
-    const roomKey = `rooms:${roomId}`; // Use the roomId to form the correct key
-    const roomExists = await client.exists(roomKey); // Check if the room exists
+    const roomKey = `rooms:${roomId}`;
+    const roomExists = await client.keys("rooms:*");
 
-    if (!roomExists) {
+    // Check if the hash is empty (indicating the room doesn't exist)
+    if (Object.keys(roomExists).length === 0) {
       return {
         msg: "Room not found",
         status: 404,
@@ -78,16 +80,16 @@ export async function delRooms(roomId) {
     }
 
     // Delete the room based on roomId
-    await client.del(roomKey);
+    const delRoom = await client.del(roomExists);
 
     return {
-      msg: "deleted room",
+      msg: "Deleted room",
       status: 200,
     };
   } catch (error) {
-    console.log("error while removing from the queue", error);
+    console.log("Error while removing from the queue:", error);
     return {
-      msg: "Something went wrong wile delete room",
+      msg: "Something went wrong while deleting the room",
       status: 500,
     };
   }
