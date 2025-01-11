@@ -15,13 +15,17 @@ export function WaitingRoom() {
   const [remoteSocketId, setRemoteSocketId] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
 
+  const remoteStreamHandler = useCallback(async (d) => {
+    const remoteStream = d.streams;
+    setRemoteStream(remoteStream);
+  }, []);
+
   //handle remote stream
   useEffect(() => {
-    peer.peer.addEventListener("track", async (d) => {
-      const remoteStream = d.streams;
-      setRemoteStream(remoteStream);
-    });
-  }, []);
+    peer.peer.addEventListener("track", remoteStreamHandler);
+
+    return () => peer.peer.addEventListener("track", remoteStreamHandler);
+  }, [remoteStreamHandler]);
 
   //ready state(add the user to queue for waiting to start session)
   const handleReady = useCallback(async () => {
