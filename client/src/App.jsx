@@ -8,8 +8,8 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<IndexPage />} />
         <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<IndexPage />} />
           <Route path="/video-chat" element={<WaitingRoom />} />
         </Route>
       </Routes>

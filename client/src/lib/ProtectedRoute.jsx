@@ -8,6 +8,8 @@ export function ProtectedRoute() {
   const check = () => {
     if (!cooki) {
       navigate("/");
+    } else {
+      navigate("/video-chat");
     }
   };
   useEffect(() => {

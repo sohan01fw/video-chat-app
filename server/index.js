@@ -67,8 +67,7 @@ io.on("connection", (socket) => {
         msg: "hi you are connected to the room",
         socketId: socket.id,
       });
-      const { msg, status } = await delRooms(roomId);
-      // console.log(msg);
+      await delRooms(roomId);
     }
 
     //if no any room is available then create new one and join on it
@@ -97,6 +96,7 @@ io.on("connection", (socket) => {
 
   socket.on("call:user", (data) => {
     const { to, offer } = data;
+    const e = socketIdToEmailMap.get(socket.id);
     io.to(to).emit("call:incoming", { id: socket.id, offer });
   });
 
@@ -105,15 +105,17 @@ io.on("connection", (socket) => {
     io.to(to).emit("call:accepted", { id: socket.id, ans });
   });
 
-  //for negotiation
+  // //for negotiation
   socket.on("nego:needed", (data) => {
     const { to, offer } = data;
-    io.to(to).emit("nego:needed", { from: socket.id, offer });
+    console.log("negoneed", data);
+    io.to(to).emit("nego:needed", { id: socket.id, offer });
   });
 
   socket.on("nego:done", (data) => {
     const { to, ans } = data;
-    io.to(to).emit("nego:done", { from: socket.id, ans });
+    console.log("nego:done", data);
+    io.to(to).emit("nego:done", { id: socket.id, ans });
   });
   socket.on("end:session", () => {});
   socket.on("disconnecting", async () => {
