@@ -13,7 +13,7 @@ import dotenv from "dotenv";
 const app = express();
 
 const PORT = process.env.PORT || 9000;
-const SOCKETPORT = process.env.SOCKETPORT || 9001;
+const SOCKETPORT = "https://video-chat-app-e4x2.onrender.com:9001" || 9001;
 
 dotenv.config();
 app.get("/", (req, res) => {
