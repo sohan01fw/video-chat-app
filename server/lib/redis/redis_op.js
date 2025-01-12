@@ -2,7 +2,7 @@ import { client } from "./redis_core.js";
 
 export async function addToQueue(queue_name, value1, value2) {
   try {
-    await client.hset(queue_name, value1, value2);
+    await client.hSet(queue_name, value1, value2);
     return {
       success: true,
       msg: "successfully added to the queue",
@@ -20,7 +20,7 @@ export async function addToQueue(queue_name, value1, value2) {
 //for rooms
 export async function addToRoomQueue(queue_name, roomId, value1, value2) {
   try {
-    await client.hset(`${queue_name}:${roomId}`, value1, value2);
+    await client.hSet(`${queue_name}:${roomId}`, value1, value2);
     return {
       success: true,
       msg: "successfully added to the queue",
@@ -38,9 +38,9 @@ export async function addToRoomQueue(queue_name, roomId, value1, value2) {
 
 export async function removeFromQueue(id) {
   try {
-    const User = await client.hexists("users_queue", id);
+    const User = await client.hExists("users_queue", id);
     if (User) {
-      const addUser = await client.hdel("users_queue", 0, id);
+      const addUser = await client.hDel("users_queue", 0, id);
     }
   } catch (error) {
     console.log("error while removing from the queue", error);
@@ -54,7 +54,7 @@ export async function getAllRooms() {
     for (const roomId of getRooms) {
       // const roomData = await JSON.parse(await client.hget("rooms",roomId))
       // console.log(roomData);
-      const roomFields = await client.hlen(`rooms:${roomId}`);
+      const roomFields = await client.hLen(`rooms:${roomId}`);
       if (roomFields < 2) {
         return roomId;
       }

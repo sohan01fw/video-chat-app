@@ -8,15 +8,19 @@ import {
   removeFromQueue,
 } from "./lib/redis/redis_op.js";
 import short from "short-uuid";
+import dotenv from "dotenv";
 
 const app = express();
 
 const PORT = process.env.PORT || 9000;
 const SOCKETPORT = process.env.SOCKETPORT || 9001;
 
+dotenv.config();
+
 app.get("/", (req, res) => {
   res.send("Hello from world!");
 });
+
 //mapping email to socket id;
 const emailToSocketIdMap = new Map();
 //mapping socketId to email;

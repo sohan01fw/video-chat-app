@@ -88,6 +88,7 @@ export function WaitingRoom() {
   //handle call accepted function
   const handleCallAccepted = useCallback(async (data) => {
     const { ans } = data;
+    console.log("rd", peer.peer.remoteDescription);
     await peer.setRemoteDescription(ans);
   }, []);
 
@@ -114,11 +115,12 @@ export function WaitingRoom() {
       const { id, offer } = data;
       //create answer
       const ans = await peer.getAnswer(offer);
-
+      console.log("id", id);
+      console.log("si", remoteSocketId);
       //emitting socket id to first user/peer
-      socket.emit("nego:done", { to: id, ans });
+      socket.emit("nego:done", { to: remoteSocketId, ans });
     },
-    [socket],
+    [socket, remoteSocketId],
   );
 
   const handleDoneNego = useCallback(async (data) => {
