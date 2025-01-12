@@ -40,7 +40,7 @@ export async function removeFromQueue(id) {
   try {
     const User = await client.hExists("users_queue", id);
     if (User) {
-      const addUser = await client.hDel("users_queue", 0, id);
+      const addUser = await client.hDel("users_queue", id);
     }
   } catch (error) {
     console.log("error while removing from the queue", error);

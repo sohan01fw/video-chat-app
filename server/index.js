@@ -16,7 +16,6 @@ const PORT = process.env.PORT || 9000;
 const SOCKETPORT = process.env.SOCKETPORT || 9001;
 
 dotenv.config();
-
 app.get("/", (req, res) => {
   res.send("Hello from world!");
 });
