@@ -30,7 +30,7 @@ const socketIdToNameMap = new Map();
 //intialize socket server
 const io = new Server(SOCKETPORT, {
   cors: {
-    origin: "https://omegalul.vercel.app",
+    origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
