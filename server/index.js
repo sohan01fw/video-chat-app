@@ -13,7 +13,7 @@ import dotenv from "dotenv";
 const app = express();
 
 const PORT = process.env.PORT || 9000;
-const SOCKETPORT = "https://video-chat-app-e4x2.onrender.com:9001" || 9001;
+const SOCKETPORT = 9001;
 
 dotenv.config();
 app.get("/", (req, res) => {
@@ -29,8 +29,11 @@ const socketIdToNameMap = new Map();
 
 //intialize socket server
 const io = new Server(SOCKETPORT, {
-  cors: true,
-  cookie: true,
+  cors: {
+    origin: "https://omegalul.vercel.app",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
 });
 
 //established socket connection
