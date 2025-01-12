@@ -18,7 +18,10 @@ export const SocketProvider = ({ children }) => {
     if (import.meta.env.MODE === "production") {
       return io(prod_url); // Use production URL
     }
-    return io(local_url || prod_url); // Use local URL or fallback to prod URL if available
+    return io(local_url || prod_url, {
+      transports: ["websocket"], // Use WebSocket transport
+      withCredentials: true, // Include credentials if needed
+    }); // Use local URL or fallback to prod URL if available
   }, [prod_url, local_url]);
 
   return <Context.Provider value={socketio}>{children}</Context.Provider>;
