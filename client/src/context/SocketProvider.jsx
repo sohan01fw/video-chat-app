@@ -16,9 +16,12 @@ export const SocketProvider = ({ children }) => {
   // Use correct WebSocket URL based on environment
   const socketio = useMemo(() => {
     if (import.meta.env.MODE === "production") {
-      return io(prod_url); // Use production URL
+      return io(prod_url, {
+        transports: ["websocket"], // Use WebSocket transport
+        withCredentials: true, // Include credentials if needed
+      }); // Use production URL
     }
-    return io(local_url || prod_url, {
+    return io(local_url, {
       transports: ["websocket"], // Use WebSocket transport
       withCredentials: true, // Include credentials if needed
     }); // Use local URL or fallback to prod URL if available
