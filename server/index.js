@@ -12,16 +12,8 @@ import dotenv from "dotenv";
 
 const app = express();
 
-const PORT = process.env.PORT || 9001;
-
-const server = app.listen(PORT, () => {
-  console.log(`server is working ${PORT}`);
-});
-//intialize socket server
-const io = new Server(server, {
-  cors: true,
-  cookie: true,
-});
+const PORT = process.env.PORT || 9000;
+const SOCKETPORT = process.env.SOCKETPORT || 9001;
 
 dotenv.config();
 app.get("/", (req, res) => {
@@ -34,6 +26,12 @@ const emailToSocketIdMap = new Map();
 const socketIdToEmailMap = new Map();
 //mapping socketId to name;
 const socketIdToNameMap = new Map();
+
+//intialize socket server
+const io = new Server(SOCKETPORT, {
+  cors: true,
+  cookie: true,
+});
 
 //established socket connection
 io.on("connection", (socket) => {
@@ -126,4 +124,8 @@ io.on("connection", (socket) => {
   socket.on("disconnecting", async () => {
     // await removeFromQueue(socket.id);
   });
+});
+
+app.listen(PORT, () => {
+  console.log(`server is working ${PORT}`);
 });
