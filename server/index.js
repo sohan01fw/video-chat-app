@@ -9,16 +9,21 @@ import {
 } from "./lib/redis/redis_op.js";
 import short from "short-uuid";
 import dotenv from "dotenv";
+import https from "https";
+import fs from "fs";
 
 const app = express();
 
-const PORT = process.env.PORT || 9000;
-const SOCKETPORT = 9001;
+const PORT = 9001;
+// const SOCKETPORT = 9001;
 
 dotenv.config();
 app.get("/", (req, res) => {
   res.send("Hello from world!");
 });
+//certificate
+const cert = fs.readFileSync("./etc/cert.pem");
+const key = fs.readFileSync("./etc/key.pem");
 
 //mapping email to socket id;
 const emailToSocketIdMap = new Map();
@@ -27,13 +32,16 @@ const socketIdToEmailMap = new Map();
 //mapping socketId to name;
 const socketIdToNameMap = new Map();
 
+// Create HTTPS server
+const server = https.createServer({ cert, key }, app);
 //intialize socket server
-const io = new Server(SOCKETPORT, {
+const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
+  transports: ["websocket", "polling"],
 });
 
 //established socket connection
@@ -129,6 +137,6 @@ io.on("connection", (socket) => {
   });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, "0.0.0.0", () => {
   console.log(`server is working ${PORT}`);
 });
