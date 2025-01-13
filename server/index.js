@@ -9,7 +9,7 @@ import {
 } from "./lib/redis/redis_op.js";
 import short from "short-uuid";
 import dotenv from "dotenv";
-import https from "http";
+import https from "https";
 import fs from "fs";
 
 const app = express();
