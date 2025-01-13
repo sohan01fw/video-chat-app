@@ -9,8 +9,8 @@ import {
 } from "./lib/redis/redis_op.js";
 import short from "short-uuid";
 import dotenv from "dotenv";
-import https from "https";
 import fs from "fs";
+import http from "http";
 
 const app = express();
 
@@ -32,8 +32,9 @@ const socketIdToEmailMap = new Map();
 //mapping socketId to name;
 const socketIdToNameMap = new Map();
 
-// Create HTTPS server
-const server = https.createServer(app);
+//create http instance
+const server = http.createServer(app);
+
 //intialize socket server
 const io = new Server(server, {
   cors: {
