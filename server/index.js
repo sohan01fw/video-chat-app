@@ -9,7 +9,7 @@ import {
 } from "./lib/redis/redis_op.js";
 import short from "short-uuid";
 import dotenv from "dotenv";
-import https from "https";
+import https from "http";
 import fs from "fs";
 
 const app = express();
@@ -22,8 +22,8 @@ app.get("/", (req, res) => {
   res.send("Hello from world!");
 });
 //certificate
-const cert = fs.readFileSync("./etc/cert.pem");
-const key = fs.readFileSync("./etc/key.pem");
+// const cert = fs.readFileSync("./etc/cert.pem");
+// const key = fs.readFileSync("./etc/key.pem");
 
 //mapping email to socket id;
 const emailToSocketIdMap = new Map();
@@ -33,7 +33,7 @@ const socketIdToEmailMap = new Map();
 const socketIdToNameMap = new Map();
 
 // Create HTTPS server
-const server = https.createServer({ cert, key }, app);
+const server = https.createServer(app);
 //intialize socket server
 const io = new Server(server, {
   cors: {
