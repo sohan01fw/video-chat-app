@@ -17,13 +17,13 @@ export const SocketProvider = ({ children }) => {
   const socketio = useMemo(() => {
     if (import.meta.env.MODE === "production") {
       return io(prod_url, {
-        transports: ["websocket"], // Use WebSocket transport
         withCredentials: true, // Include credentials if needed
+        transports: ["websocket", "polling"],
       }); // Use production URL
     }
     return io(local_url, {
-      transports: ["websocket"], // Use WebSocket transport
       withCredentials: true, // Include credentials if needed
+      transports: ["websocket", "polling"],
     }); // Use local URL or fallback to prod URL if available
   }, [prod_url, local_url]);
 
